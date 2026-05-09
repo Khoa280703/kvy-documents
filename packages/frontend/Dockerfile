@@ -9,6 +9,8 @@ COPY packages/mock-service/package.json packages/mock-service/
 RUN pnpm install --filter frontend --filter shared
 COPY packages/shared/ packages/shared/
 COPY packages/frontend/ packages/frontend/
+ARG NEXT_PUBLIC_API_URL=http://localhost:3001
+ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
 RUN pnpm --filter frontend build
 
 FROM node:20-alpine
