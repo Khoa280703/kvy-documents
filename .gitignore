@@ -11,5 +11,3 @@ coverage/
 uploads/
 pgdata/
 build/
-plans/
-*.pdf
