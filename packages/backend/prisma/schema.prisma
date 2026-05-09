@@ -1,0 +1,100 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  seller
+  admin
+}
+
+enum DocumentStatus {
+  pending_upload
+  pending_verification
+  verified
+  rejected
+  inconclusive
+  pending_review
+  approved
+  expired
+}
+
+enum ActorType {
+  system
+  seller
+  admin
+}
+
+model User {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  password_hash String
+  role         UserRole
+  name         String
+  created_at   DateTime @default(now())
+  updated_at   DateTime @updatedAt
+
+  documents    Document[] @relation("SellerDocuments")
+  reviewed     Document[] @relation("ReviewedDocuments")
+  notifications Notification[]
+}
+
+model Document {
+  id               String   @id @default(uuid())
+  seller_id        String
+  file_key         String
+  file_name        String
+  file_type        String
+  file_size        Int
+  status           DocumentStatus @default(pending_upload)
+  version          Int      @default(1)
+  reviewed_by      String?
+  review_reason    String?
+  rejection_reason String?
+  submitted_at     DateTime?
+  verified_at      DateTime?
+  reviewed_at      DateTime?
+  created_at       DateTime @default(now())
+  updated_at       DateTime @updatedAt
+
+  seller           User     @relation("SellerDocuments", fields: [seller_id], references: [id])
+  reviewer         User?    @relation("ReviewedDocuments", fields: [reviewed_by], references: [id])
+  audit_logs       AuditLog[]
+  notifications    Notification[]
+
+  @@index([seller_id])
+  @@index([status])
+}
+
+model AuditLog {
+  id          String   @id @default(uuid())
+  document_id String
+  actor_id    String?
+  actor_type  ActorType
+  action      String
+  metadata    Json?
+  created_at  DateTime @default(now())
+
+  document    Document @relation(fields: [document_id], references: [id])
+
+  @@index([document_id])
+}
+
+model Notification {
+  id          String   @id @default(uuid())
+  user_id     String
+  document_id String
+  type        String
+  message     String
+  is_read     Boolean  @default(false)
+  created_at  DateTime @default(now())
+
+  user        User     @relation(fields: [user_id], references: [id])
+  document    Document @relation(fields: [document_id], references: [id])
+
+  @@index([user_id, is_read])
+}

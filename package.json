@@ -1,0 +1,12 @@
+{
+  "name": "kvy",
+  "private": true,
+  "scripts": {
+    "dev": "pnpm --parallel dev",
+    "build": "pnpm -r build",
+    "db:migrate": "pnpm --filter backend db:migrate",
+    "db:seed": "pnpm --filter backend db:seed",
+    "db:reset": "pnpm --filter backend db:reset",
+    "test": "pnpm --filter backend test"
+  }
+}
