@@ -11,7 +11,7 @@
     "resolveJsonModule": true,
     "baseUrl": ".",
     "paths": {
-      "@kvy/shared": ["../shared/src"]
+      "@kvy/shared": ["../shared/dist"]
     }
   },
   "include": ["src/**/*.ts", "prisma/**/*.ts"]

@@ -9,6 +9,7 @@ COPY packages/mock-service/package.json packages/mock-service/
 RUN pnpm install --filter backend --filter shared
 COPY packages/shared/ packages/shared/
 COPY packages/backend/ packages/backend/
+RUN pnpm --filter shared build
 RUN cd packages/backend && npx prisma generate
 RUN pnpm --filter backend build
 
