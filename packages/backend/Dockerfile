@@ -22,4 +22,4 @@ COPY --from=builder /app/packages/backend/node_modules packages/backend/node_mod
 COPY --from=builder /app/packages/backend/dist packages/backend/dist
 COPY --from=builder /app/packages/backend/prisma packages/backend/prisma
 COPY --from=builder /app/packages/shared packages/shared
-CMD ["node", "packages/backend/dist/backend/src/index.js"]
+CMD ["node", "packages/backend/dist/src/index.js"]
