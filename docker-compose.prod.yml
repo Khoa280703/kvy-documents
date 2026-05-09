@@ -28,8 +28,6 @@ services:
       context: .
       dockerfile: packages/backend/Dockerfile
     restart: unless-stopped
-    ports:
-      - "${BACKEND_PORT:-3001}:${BACKEND_PORT:-3001}"
     depends_on:
       postgres:
         condition: service_healthy
@@ -57,8 +55,6 @@ services:
       context: .
       dockerfile: packages/frontend/Dockerfile
     restart: unless-stopped
-    ports:
-      - "${FRONTEND_PORT:-3000}:${FRONTEND_PORT:-3000}"
     depends_on:
       - backend
     environment:

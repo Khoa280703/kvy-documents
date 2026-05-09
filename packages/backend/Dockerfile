@@ -24,4 +24,4 @@ COPY packages/mock-service/package.json packages/mock-service/
 RUN pnpm install --filter backend --filter shared --prod
 COPY --from=builder /app/packages/backend/dist packages/backend/dist
 COPY --from=builder /prisma-client/client node_modules/.prisma/client
-CMD ["node", "packages/backend/dist/index.js"]
+CMD ["node", "packages/backend/dist/backend/src/index.js"]
