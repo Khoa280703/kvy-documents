@@ -2,7 +2,7 @@ import { Queue, Worker } from 'bullmq';
 import IORedis from 'ioredis';
 import { transitionState } from '../services/verification-service';
 
-const connection = new IORedis(process.env.REDIS_URL || 'redis://localhost:6379');
+const connection = new IORedis(process.env.REDIS_URL || 'redis://localhost:6379', { maxRetriesPerRequest: null });
 
 export const timeoutQueue = new Queue('timeout', { connection });
 
