@@ -16,7 +16,8 @@ router.post('/upload-url', requireAuth, requireRole('seller'), asyncHandler(asyn
   const { fileName, fileType, fileSize } = z.object({ fileName: z.string(), fileType: z.string(), fileSize: z.number() }).parse(req.body);
   const doc = await createDocument({ sellerId: req.user!.userId, fileName, fileType, fileSize });
   const { url } = generatePresignedUrl(doc.file_key, fileType, fileSize);
-  res.json({ documentId: doc.id, uploadUrl: url });
+  const uploadUrl = await url;
+  res.json({ documentId: doc.id, uploadUrl });
 }));
 
 router.post('/:id/confirm-upload', requireAuth, requireRole('seller'), asyncHandler(async (req: Request, res: Response) => {
