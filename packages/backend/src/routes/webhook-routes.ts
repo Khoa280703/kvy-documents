@@ -1,6 +1,6 @@
 import { Router, Request, Response } from 'express';
 import { z } from 'zod';
-import { transitionState } from '../services/verification-service';
+import { transitionState, postTransitionEffects } from '../services/verification-service';
 import { AppError } from '../utils/app-error';
 import { asyncHandler } from '../utils/async-handler';
 
@@ -20,8 +20,9 @@ router.post('/verification', asyncHandler(async (req: Request, res: Response) =>
 
   try {
     const { documentId, status, reason } = webhookSchema.parse(req.body);
-    const doc = await transitionState(documentId, status, { actorType: 'system', reason });
-    res.json({ status: 'processed', document: doc });
+    const { updated } = await transitionState(documentId, status, { actorType: 'system', reason });
+    await postTransitionEffects(updated, status === 'inconclusive' ? 'pending_verification' : updated.status, status);
+    res.json({ status: 'processed', document: updated });
   } catch (err) {
     console.error('Webhook error:', err);
     throw new AppError(400, 'Invalid webhook payload');

@@ -2,7 +2,7 @@ import { Router, Request, Response } from 'express';
 import { z } from 'zod';
 import { requireAuth } from '../middleware/auth-middleware';
 import { requireRole } from '../middleware/role-guard';
-import { transitionState } from '../services/verification-service';
+import { transitionState, postTransitionEffects } from '../services/verification-service';
 import { getDocument } from '../services/document-service';
 import { AppError } from '../utils/app-error';
 import { asyncHandler } from '../utils/async-handler';
@@ -35,8 +35,9 @@ router.post('/documents/:id/review', requireAuth, requireRole('admin'), asyncHan
   const { id } = z.object({ id: z.string().uuid() }).parse(req.params);
   const { action, reason, version } = z.object({ action: z.enum(['approve', 'reject']), reason: z.string(), version: z.number() }).parse(req.body);
   const status = action === 'approve' ? 'approved' : 'rejected';
-  const doc = await transitionState(id, status, { actorId: req.user!.userId, actorType: 'admin', reason, expectedVersion: version });
-  res.json(doc);
+  const { updated } = await transitionState(id, status, { actorId: req.user!.userId, actorType: 'admin', reason, expectedVersion: version });
+  await postTransitionEffects(updated, 'pending_review', status, req.user!.userId);
+  res.json(updated);
 }));
 
 router.get('/documents/:id/audit-logs', requireAuth, asyncHandler(async (req: Request, res: Response) => {
