@@ -3,7 +3,7 @@ WORKDIR /app
 RUN corepack enable && corepack prepare pnpm@latest --activate
 COPY package.json pnpm-workspace.yaml pnpm-lock.yaml ./
 COPY packages/mock-service/package.json packages/mock-service/
-RUN pnpm install --frozen-lockfile --filter mock-service
+RUN pnpm install --filter mock-service
 COPY packages/mock-service/ packages/mock-service/
 RUN pnpm --filter mock-service build
 

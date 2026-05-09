@@ -4,7 +4,7 @@ RUN corepack enable && corepack prepare pnpm@latest --activate
 COPY package.json pnpm-workspace.yaml pnpm-lock.yaml ./
 COPY packages/shared/package.json packages/shared/
 COPY packages/frontend/package.json packages/frontend/
-RUN pnpm install --frozen-lockfile --filter frontend --filter shared
+RUN pnpm install --filter frontend --filter shared
 COPY packages/shared/ packages/shared/
 COPY packages/frontend/ packages/frontend/
 RUN pnpm --filter frontend build
