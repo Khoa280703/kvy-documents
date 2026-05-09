@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express';
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 import { z } from 'zod';
 import { signToken } from '../utils/jwt-utils';
 import { requireAuth } from '../middleware/auth-middleware';
