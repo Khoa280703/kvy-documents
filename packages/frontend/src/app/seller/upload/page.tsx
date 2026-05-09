@@ -20,7 +20,7 @@ export default function UploadPage() {
     setUploading(true);
     setProgress(10);
     try {
-      const { documentId, uploadUrl } = await apiClient('/api/documents/upload-url', { method: 'POST', body: JSON.stringify({ fileName: file.name, fileType: file.type, fileSize: file.size }) });
+      const { documentId, uploadUrl } = await apiClient<{ documentId: string; uploadUrl: string }>('/api/documents/upload-url', { method: 'POST', body: JSON.stringify({ fileName: file.name, fileType: file.type, fileSize: file.size }) });
       setProgress(50);
       await fetch(uploadUrl, { method: 'PUT', body: file, headers: { 'Content-Type': file.type } });
       setProgress(80);
@@ -39,7 +39,7 @@ export default function UploadPage() {
           const f = e.target.files?.[0];
           if (f && !ALLOWED_TYPES.includes(f.type)) return setError('Invalid file type. Allowed: PDF, PNG, JPG');
           if (f && f.size > MAX_SIZE) return setError('File too large. Max: 10MB');
-          setFile(f);
+          if (f) setFile(f);
           setError('');
         }} className="mb-4 block w-full" required disabled={uploading} />
         {progress > 0 && <div className="mb-4 bg-gray-200 rounded-full h-2"><div className="bg-blue-600 h-2 rounded-full" style={{ width: `${progress}%` }}></div></div>}
