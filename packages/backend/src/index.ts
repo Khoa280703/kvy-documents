@@ -34,7 +34,15 @@ const httpServer = createServer(app);
 const io = setupSocket(httpServer);
 setIo(io);
 
-httpServer.listen(PORT, () => console.log(`Backend running on port ${PORT}`));
+httpServer.listen(PORT, async () => {
+  console.log(`Backend running on port ${PORT}`);
+  // Fix documents stuck in 'inconclusive' that should have transitioned to 'pending_review'
+  const stuck = await prisma.document.updateMany({
+    where: { status: 'inconclusive' },
+    data: { status: 'pending_review' },
+  });
+  if (stuck.count > 0) console.log(`Fixed ${stuck.count} documents stuck in inconclusive`);
+});
 
 // Graceful shutdown
 process.on('SIGTERM', async () => {
