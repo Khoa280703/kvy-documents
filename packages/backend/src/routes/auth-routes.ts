@@ -18,7 +18,7 @@ router.post('/login', asyncHandler(async (req: Request, res: Response) => {
   const match = await bcrypt.compare(password, user.password_hash);
   if (!match) throw new AppError(401, 'Invalid credentials');
   const token = signToken({ userId: user.id, email: user.email, role: user.role });
-  res.cookie('token', token, { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'lax', maxAge: 7 * 24 * 60 * 60 * 1000 });
+  res.cookie('token', token, { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax', maxAge: 7 * 24 * 60 * 60 * 1000 });
   res.json({ id: user.id, email: user.email, role: user.role, name: user.name });
 }));
 
