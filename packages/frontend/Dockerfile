@@ -22,4 +22,5 @@ COPY packages/mock-service/package.json packages/mock-service/
 RUN pnpm install --filter frontend --filter shared --prod
 COPY --from=builder /app/packages/frontend/.next packages/frontend/.next
 COPY --from=builder /app/packages/frontend/public packages/frontend/public
+EXPOSE 3000
 CMD ["sh", "-c", "cd packages/frontend && npx next start -p ${FRONTEND_PORT:-3000}"]
