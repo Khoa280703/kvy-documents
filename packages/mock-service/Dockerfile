@@ -1,17 +1,13 @@
 FROM node:20-alpine AS builder
 WORKDIR /app
-RUN corepack enable && corepack prepare pnpm@latest --activate
-COPY package.json pnpm-workspace.yaml pnpm-lock.yaml ./
-COPY packages/mock-service/package.json packages/mock-service/
-RUN pnpm install --filter mock-service
-COPY packages/mock-service/ packages/mock-service/
-RUN pnpm --filter mock-service build
+COPY packages/mock-service/package.json ./
+RUN npm install
+COPY packages/mock-service/ ./
+RUN npx tsc
 
 FROM node:20-alpine
 WORKDIR /app
-RUN corepack enable && corepack prepare pnpm@latest --activate
-COPY package.json pnpm-workspace.yaml pnpm-lock.yaml ./
-COPY packages/mock-service/package.json packages/mock-service/
-RUN pnpm install --filter mock-service --prod
-COPY --from=builder /app/packages/mock-service/dist packages/mock-service/dist
-CMD ["node", "packages/mock-service/dist/index.js"]
+COPY packages/mock-service/package.json ./
+RUN npm install --omit=dev
+COPY --from=builder /app/dist ./dist
+CMD ["node", "dist/index.js"]
