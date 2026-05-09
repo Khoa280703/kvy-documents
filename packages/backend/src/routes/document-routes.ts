@@ -8,6 +8,7 @@ import { verificationQueue } from '../queues/verification-queue';
 import { timeoutQueue } from '../queues/timeout-queue';
 import { AppError } from '../utils/app-error';
 import { asyncHandler } from '../utils/async-handler';
+import prisma from '../services/prisma-client';
 
 const router = Router();
 const uuidSchema = z.string().uuid();
@@ -37,6 +38,18 @@ router.get('/:id', requireAuth, asyncHandler(async (req: Request, res: Response)
   const id = uuidSchema.parse(req.params.id);
   const doc = await getDocument(id, req.user!.userId, req.user!.role);
   res.json(doc);
+}));
+
+router.delete('/:id', requireAuth, requireRole('seller'), asyncHandler(async (req: Request, res: Response) => {
+  const id = uuidSchema.parse(req.params.id);
+  // Only allow canceling pending_upload documents owned by the seller
+  const doc = await prisma.document.findUnique({ where: { id } });
+  if (!doc) throw new AppError(404, 'Document not found');
+  if (doc.seller_id !== req.user!.userId) throw new AppError(403, 'Forbidden');
+  if (doc.status !== 'pending_upload') throw new AppError(400, 'Can only cancel pending uploads');
+  await prisma.auditLog.deleteMany({ where: { document_id: id } });
+  await prisma.document.delete({ where: { id } });
+  res.json({ message: 'Upload cancelled' });
 }));
 
 export { router as documentRoutes };

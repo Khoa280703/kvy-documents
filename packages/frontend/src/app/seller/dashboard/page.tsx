@@ -8,10 +8,28 @@ interface Doc { id: string; file_name: string; status: string; created_at: strin
 
 export default function SellerDashboard() {
   const [docs, setDocs] = useState<Doc[]>([]);
+  const [cancelling, setCancelling] = useState<string | null>(null);
+
+  const fetchDocs = () => {
+    apiClient<Doc[]>('/api/documents').then(setDocs).catch(() => setDocs([]));
+  };
 
   useEffect(() => {
-    apiClient<Doc[]>('/api/documents').then(setDocs).catch(() => setDocs([]));
+    fetchDocs();
   }, []);
+
+  const handleCancel = async (id: string) => {
+    if (!confirm('Cancel this pending upload?')) return;
+    setCancelling(id);
+    try {
+      await apiClient(`/api/documents/${id}`, { method: 'DELETE' });
+      fetchDocs();
+    } catch {
+      alert('Failed to cancel upload. Please try again.');
+    } finally {
+      setCancelling(null);
+    }
+  };
 
   return (
     <div>
@@ -31,7 +49,18 @@ export default function SellerDashboard() {
                 {doc.rejection_reason && <p className="text-sm text-red-500">Reason: {doc.rejection_reason}</p>}
                 {doc.review_reason && !doc.rejection_reason && <p className="text-sm text-green-600">Reason: {doc.review_reason}</p>}
               </div>
-              <StatusBadge status={doc.status} />
+              <div className="flex items-center gap-3">
+                <StatusBadge status={doc.status} />
+                {doc.status === 'pending_upload' && (
+                  <button
+                    onClick={() => handleCancel(doc.id)}
+                    disabled={cancelling === doc.id}
+                    className="text-sm text-red-600 hover:text-red-800 disabled:opacity-50"
+                  >
+                    {cancelling === doc.id ? 'Cancelling...' : 'Cancel'}
+                  </button>
+                )}
+              </div>
             </div>
           ))}
         </div>
