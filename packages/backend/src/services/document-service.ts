@@ -13,6 +13,16 @@ export async function createDocument(params: {
   if (params.fileSize > MAX_FILE_SIZE)
     throw new AppError(400, 'File too large');
 
+  // Clean up stale pending_upload documents (older than 10 minutes)
+  const staleThreshold = new Date(Date.now() - 10 * 60 * 1000);
+  await prisma.document.deleteMany({
+    where: {
+      seller_id: params.sellerId,
+      status: 'pending_upload',
+      created_at: { lt: staleThreshold },
+    },
+  });
+
   const active = await prisma.document.findFirst({
     where: {
       seller_id: params.sellerId,
