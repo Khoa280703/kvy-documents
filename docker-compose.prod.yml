@@ -2,6 +2,7 @@ services:
   postgres:
     image: postgres:16-alpine
     restart: unless-stopped
+    command: -p 5480
     environment:
       POSTGRES_DB: ${POSTGRES_DB:-kvy_verification}
       POSTGRES_USER: ${POSTGRES_USER:-kvy}
@@ -9,7 +10,7 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-kvy}"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-kvy} -p 5480"]
       interval: 5s
       timeout: 3s
       retries: 5
@@ -17,8 +18,9 @@ services:
   redis:
     image: redis:7-alpine
     restart: unless-stopped
+    command: --port 6390
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: ["CMD", "redis-cli", "-p", "6390", "ping"]
       interval: 5s
       timeout: 3s
       retries: 5
@@ -34,8 +36,8 @@ services:
       redis:
         condition: service_healthy
     environment:
-      DATABASE_URL: postgresql://${POSTGRES_USER:-kvy}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-kvy_verification}
-      REDIS_URL: redis://redis:6379
+      DATABASE_URL: postgresql://${POSTGRES_USER:-kvy}:${POSTGRES_PASSWORD}@postgres:5480/${POSTGRES_DB:-kvy_verification}
+      REDIS_URL: redis://redis:6390
       JWT_SECRET: ${JWT_SECRET:?JWT_SECRET required}
       JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-7d}
       R2_ACCOUNT_ID: ${R2_ACCOUNT_ID}
@@ -44,9 +46,9 @@ services:
       R2_BUCKET_NAME: ${R2_BUCKET_NAME:-kvy}
       R2_ENDPOINT: ${R2_ENDPOINT}
       R2_PUBLIC_URL: ${R2_PUBLIC_URL}
-      MOCK_SERVICE_URL: http://mock-service:${MOCK_SERVICE_PORT:-3002}
-      WEBHOOK_BASE_URL: ${WEBHOOK_BASE_URL:-http://backend:3001}
-      BACKEND_PORT: ${BACKEND_PORT:-3001}
+      MOCK_SERVICE_URL: http://mock-service:${MOCK_SERVICE_PORT:-3052}
+      WEBHOOK_BASE_URL: ${WEBHOOK_BASE_URL:-http://backend:3051}
+      BACKEND_PORT: ${BACKEND_PORT:-3051}
       NODE_ENV: production
       CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:3000}
 
@@ -61,7 +63,7 @@ services:
       - backend
     environment:
       NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:3001}
-      FRONTEND_PORT: ${FRONTEND_PORT:-3000}
+      FRONTEND_PORT: ${FRONTEND_PORT:-3050}
       NODE_ENV: production
 
   mock-service:
@@ -72,7 +74,7 @@ services:
     depends_on:
       - backend
     environment:
-      MOCK_SERVICE_PORT: ${MOCK_SERVICE_PORT:-3002}
+      MOCK_SERVICE_PORT: ${MOCK_SERVICE_PORT:-3052}
       NODE_ENV: production
 
 volumes:
