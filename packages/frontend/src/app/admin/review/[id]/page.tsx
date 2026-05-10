@@ -4,7 +4,7 @@ import { useRouter, useParams } from 'next/navigation';
 import { apiClient } from '../../../../lib/api-client';
 import { StatusBadge } from '../../../../components/status-badge';
 import Link from 'next/link';
-import { ArrowLeft, FileText, User, Mail, Clock, Tag, AlertCircle, CheckCircle, XCircle } from 'lucide-react';
+import { ArrowLeft, FileText, User, Mail, Clock, Tag, AlertCircle, CheckCircle, XCircle, Download, Eye } from 'lucide-react';
 
 interface Doc {
   id: string;
@@ -23,10 +23,15 @@ export default function ReviewPage() {
   const [reason, setReason] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [showPreview, setShowPreview] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
     apiClient<Doc>(`/api/documents/${params.id}`).then(setDoc).catch(() => {});
+    apiClient<{ downloadUrl: string }>(`/api/documents/${params.id}/download-url`)
+      .then(data => setPreviewUrl(data.downloadUrl))
+      .catch(() => {});
   }, [params.id]);
 
   const handleReview = async (action: 'approve' | 'reject') => {
@@ -118,6 +123,48 @@ export default function ReviewPage() {
           </div>
         </div>
       </div>
+
+      {/* Document Preview Card */}
+      {previewUrl && (
+        <div className="bg-white rounded-2xl border border-slate-200 p-6 mb-6">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-base font-semibold text-slate-900">Document Preview</h3>
+            <div className="flex gap-2">
+              <button
+                onClick={() => setShowPreview(!showPreview)}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg cursor-pointer transition-colors"
+              >
+                <Eye className="w-4 h-4" />
+                {showPreview ? 'Hide' : 'Preview'}
+              </button>
+              <a
+                href={previewUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-blue-700 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors"
+              >
+                <Download className="w-4 h-4" />
+                Download
+              </a>
+            </div>
+          </div>
+          {showPreview && (
+            <div className="border border-slate-200 rounded-lg overflow-hidden bg-slate-50">
+              {doc.file_type.startsWith('image/') ? (
+                <img src={previewUrl} alt={doc.file_name} className="max-w-full max-h-[500px] mx-auto" />
+              ) : doc.file_type === 'application/pdf' ? (
+                <iframe src={previewUrl} className="w-full h-[500px]" title={doc.file_name} />
+              ) : (
+                <div className="p-8 text-center text-slate-500">
+                  <FileText className="w-12 h-12 mx-auto mb-2 text-slate-300" />
+                  <p>Preview not available for this file type.</p>
+                  <p className="text-sm mt-1">Use the Download button to view the file.</p>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Review Form Card */}
       <div className="bg-white rounded-2xl border border-slate-200 p-6">

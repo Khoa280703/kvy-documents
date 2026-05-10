@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { requireAuth } from '../middleware/auth-middleware';
 import { requireRole } from '../middleware/role-guard';
 import { createDocument, confirmUpload, listDocuments, getDocument } from '../services/document-service';
-import { generatePresignedUrl } from '../services/r2-service';
+import { generatePresignedUrl, generatePresignedGetUrl } from '../services/r2-service';
 import { verificationQueue } from '../queues/verification-queue';
 import { timeoutQueue } from '../queues/timeout-queue';
 import { AppError } from '../utils/app-error';
@@ -38,6 +38,13 @@ router.get('/:id', requireAuth, asyncHandler(async (req: Request, res: Response)
   const id = uuidSchema.parse(req.params.id);
   const doc = await getDocument(id, req.user!.userId, req.user!.role);
   res.json(doc);
+}));
+
+router.get('/:id/download-url', requireAuth, asyncHandler(async (req: Request, res: Response) => {
+  const id = uuidSchema.parse(req.params.id);
+  const doc = await getDocument(id, req.user!.userId, req.user!.role);
+  const downloadUrl = await generatePresignedGetUrl(doc.file_key);
+  res.json({ downloadUrl });
 }));
 
 router.delete('/:id', requireAuth, requireRole('seller'), asyncHandler(async (req: Request, res: Response) => {
