@@ -26,5 +26,5 @@ export function generatePresignedUrl(fileKey: string, contentType: string, maxSi
 
 export function generatePresignedGetUrl(fileKey: string) {
   const command = new GetObjectCommand({ Bucket: BUCKET, Key: fileKey });
-  return getSignedUrl(s3, command, { expiresIn: 600 });
+  return getSignedUrl(s3, command, { expiresIn: 3600 });
 }
