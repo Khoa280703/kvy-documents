@@ -9,7 +9,8 @@ A full-stack document verification pipeline for seller onboarding:
 - **File Upload**: Cloudflare R2 presigned URL upload (S3-compatible)
 - **Verification Workflow**: BullMQ async jobs dispatch to mock service, webhook callbacks trigger state machine transitions
 - **State Machine**: 8 states with guarded transitions and optimistic locking (version field)
-- **Admin Review**: Inconclusive results auto-route to admin queue with approve/reject + reason + document preview/download
+- **Document Preview**: Both seller and admin can preview/download uploaded files via R2 presigned URLs
+- **Admin Review**: Inconclusive results auto-route to admin queue with approve/reject + reason
 - **Real-time**: Socket.IO notifications on status changes
 - **Audit Trail**: Every state transition logged with actor, action, timestamp, and metadata
 - **Deployed**: Frontend and backend live on custom subdomain via Coolify + Cloudflare Tunnel

@@ -21,32 +21,42 @@ Marketplace document verification platform. Two roles: **Seller** (uploads docum
 
 ### 2. Seller Dashboard (`/seller/dashboard`)
 - List of uploaded documents with status badges
-- Each row shows: file name, submitted date, status, reason (if any)
+- Each row links to document detail page
 - Cancel button for `pending_upload` documents
 - Empty state when no documents
 - **Statuses:** Pending Upload, Pending Verification, Under Review, Verified, Approved, Rejected, Expired
 
-### 3. Seller Upload (`/seller/upload`)
+### 3. Seller Document Detail (`/seller/documents/[id]`)
+- Document info: file name, type, size, submitted date
+- Status badge + reason (review/rejection)
+- File preview (image inline, PDF iframe) and download via R2 presigned URL
+
+### 4. Seller Upload (`/seller/upload`)
 - File picker (drag & drop preferred)
 - Allowed types: PDF, PNG, JPG, JPEG
 - Max size: 10MB
 - Upload progress indicator
 - Success/error feedback
 
-### 4. Admin Dashboard (`/admin/dashboard`)
+### 5. Admin Dashboard (`/admin/dashboard`)
 - List of documents in `pending_review` status
 - Each row: file name, seller name, seller email, submitted date
 - Click to navigate to review page
 - Counter showing total pending reviews
 - Empty state
 
-### 5. Admin Review Detail (`/admin/review/[id]`)
+### 6. Admin Review Detail (`/admin/review/[id]`)
 - Document info: file name, type, size, seller info, submitted date
-- Current status + full audit trail (timeline)
+- File preview (image/PDF) and download via R2 presigned URL
 - Review form: approve/reject with required reason textarea
 - Optimistic locking (version field)
 
-### 6. Admin Audit Log (`/admin/audit`)
+### 7. Admin All Documents (`/admin/documents`)
+- View all documents across all statuses
+- Filter by status buttons
+- Each row links to review detail page
+
+### 8. Admin Audit Log (`/admin/audit`)
 - Paginated table of all system events
 - Columns: timestamp, action, document name, actor, details
 - Pagination controls
