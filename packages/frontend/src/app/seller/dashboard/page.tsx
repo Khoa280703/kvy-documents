@@ -69,7 +69,7 @@ export default function SellerDashboard() {
         <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden">
           <div className="divide-y divide-slate-100">
             {docs.map(doc => (
-              <div key={doc.id} className="px-5 py-4 flex items-center gap-4 hover:bg-slate-50 transition-colors">
+              <Link key={doc.id} href={`/seller/documents/${doc.id}`} className="block px-5 py-4 flex items-center gap-4 hover:bg-slate-50 transition-colors cursor-pointer">
                 {/* File Icon */}
                 <div className="flex-shrink-0 w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center text-slate-500">
                   <FileText className="w-5 h-5" />
@@ -94,7 +94,7 @@ export default function SellerDashboard() {
                   <StatusBadge status={doc.status} />
                   {doc.status === 'pending_upload' && (
                     <button
-                      onClick={() => handleCancel(doc.id)}
+                      onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleCancel(doc.id); }}
                       disabled={cancelling === doc.id}
                       className="text-slate-400 hover:text-red-600 cursor-pointer p-1 disabled:opacity-50 transition-colors"
                       aria-label="Cancel upload"
@@ -103,7 +103,7 @@ export default function SellerDashboard() {
                     </button>
                   )}
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
         </div>
